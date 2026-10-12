@@ -47,7 +47,7 @@ real-estate-price-prediction/
 └── README.md
 ```
 
-## MODULE 1: Data Collection and Understanding
+# MODULE 1: Data Collection and Understanding
 
 ### Dataset Overview
 
