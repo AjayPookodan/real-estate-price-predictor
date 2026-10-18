@@ -47,7 +47,7 @@ real-estate-price-prediction/
 └── README.md
 ```
 
-## 1. Data Collection and Understanding
+# MODULE 1: Data Collection and Understanding
 
 ### Dataset Overview
 
@@ -1310,4 +1310,1875 @@ The next module will focus on **Exploratory Data Analysis (EDA)**, where the dis
 
 Before model training, the price conversion, minimum-price cutoff, remaining missing values, and area-measurement differences should be reviewed to ensure that the model is trained on appropriately validated data.
 
-**Next module: Module 3 — Exploratory Data Analysis (EDA).**
+# Module 3: Exploratory Data Analysis (EDA)
+
+## Real Estate Price Prediction Using Machine Learning
+
+---
+
+## 1. Introduction
+
+Exploratory Data Analysis (EDA) is an important stage in a machine learning project. Before training a model, it is necessary to understand the dataset, examine the distributions of variables, identify relationships between features, detect possible data-quality issues, and determine which features may help predict the target variable.
+
+In this project, EDA is performed on a cleaned real-estate dataset containing property listings for Gurgaon, India.
+
+The objective is to investigate the relationship between property sale prices and characteristics such as:
+
+* Property area.
+* Number of bedrooms.
+* Number of bathrooms.
+* Property type.
+* Furnishing status.
+* Property age.
+* Facing direction.
+* Ownership type.
+* Locality.
+* Geographic coordinates.
+
+The analysis also examines how prices vary across different localities and whether the spatial distribution of property listings reveals geographical patterns.
+
+The findings from EDA will guide the next stage of the project, where additional location-related features will be investigated and machine learning models will be developed.
+
+### Main objectives
+
+The objectives of this stage are:
+
+1. Load and verify the preprocessed dataset.
+2. Understand the structure, data types, and missing values.
+3. Examine the statistical characteristics of the dataset.
+4. Analyse the distribution of property prices.
+5. Investigate whether a logarithmic transformation is appropriate for the target.
+6. Study correlations between numeric features.
+7. Examine the relationship between price, area, bedrooms, and property type.
+8. Compare property prices across localities.
+9. Visualise property listings geographically.
+10. Identify potential multicollinearity, categorical-encoding requirements, and data-quality issues.
+11. Prepare a set of observations to guide subsequent feature engineering and model development.
+
+---
+
+## 2. Location of the EDA Files
+
+The EDA analysis is performed in the following notebook:
+
+`notebooks/03_eda.ipynb`
+
+The notebook loads the dataset produced during the preprocessing stage.
+
+### Input dataset
+
+`data/processed/clean_v2.csv`
+
+This file contains the cleaned property listings used for EDA.
+
+The dataset contains 7,457 rows and 18 columns before the additional EDA helper columns are created.
+
+The notebook creates two additional columns for analysis:
+
+* `price_per_sqft`
+* `log_price`
+
+Therefore, the DataFrame is expected to contain 7,457 rows and 20 columns after these helper columns have been created, provided no rows have been added or removed.
+
+### Output directory
+
+Figures are saved in:
+
+`reports/figures/`
+
+The interactive geographical map is saved in:
+
+`reports/price_map.html`
+
+These outputs provide visual evidence of the analysis and can be included in the final project report.
+
+---
+
+## 3. Dataset Overview
+
+### 3.1 Dataset description
+
+The dataset contains property listings describing residential properties offered for sale in Gurgaon.
+
+Each row represents a property listing, while each column describes an attribute of that listing.
+
+The available information includes property characteristics, location information, geographic coordinates, and the sale price.
+
+The cleaned dataset used in EDA has the following dimensions:
+
+| Attribute                                      | Value                         |
+| ---------------------------------------------- | ----------------------------- |
+| Dataset file                                   | `clean_v2.csv`                |
+| Location                                       | `data/processed/clean_v2.csv` |
+| Number of listings                             | 7,457                         |
+| Original number of columns in the cleaned file | 18                            |
+| Additional EDA helper columns                  | 2                             |
+| Expected DataFrame columns after setup         | 20                            |
+| Target variable                                | `price_lakhs`                 |
+| Geographic focus                               | Gurgaon, India                |
+
+The 7,457-row count refers to the cleaned dataset used for EDA, not the original raw dataset.
+
+### 3.2 Important columns
+
+The principal columns used during EDA are described below.
+
+| Column                 | Description                                        | Role in EDA                            |
+| ---------------------- | -------------------------------------------------- | -------------------------------------- |
+| `prop_id`              | Property listing identifier                        | Identification and traceability        |
+| `latitude`             | Latitude of the listing                            | Geographic analysis                    |
+| `longitude`            | Longitude of the listing                           | Geographic analysis                    |
+| `property_type`        | Type of property                                   | Comparison between property categories |
+| `owntype`              | Encoded ownership-type category                    | Categorical analysis                   |
+| `bedroom_num`          | Number of bedrooms                                 | Relationship with price                |
+| `bathroom_num`         | Number of bathrooms                                | Relationship with price                |
+| `balcony_num`          | Number of balconies                                | Property-characteristic analysis       |
+| `furnish`              | Encoded furnishing category                        | Categorical analysis                   |
+| `facing`               | Encoded facing-direction category                  | Categorical analysis                   |
+| `age`                  | Encoded property-age category                      | Categorical analysis                   |
+| `floor_num`            | Floor number                                       | Property-characteristic analysis       |
+| `total_floor`          | Total number of floors                             | Property-characteristic analysis       |
+| `total_landmark_count` | Count of landmarks represented in the dataset      | Exploratory feature analysis           |
+| `area_sqft`            | Selected property area in square feet              | Relationship with price                |
+| `area_is_carpet`       | Indicator associated with the selected area source | Area-quality analysis                  |
+| `locality_grouped`     | Grouped locality category                          | Locality-level price analysis          |
+| `price_lakhs`          | Sale price in lakhs of Indian rupees               | Target variable                        |
+| `price_per_sqft`       | Derived price per square foot                      | Exploratory analysis only              |
+| `log_price`            | Log-transformed sale price                         | Distribution and correlation analysis  |
+
+**Note:** The meanings of the encoded values in `owntype`, `furnish`, `facing`, and `age` must be interpreted using the original dataset's category definitions. The numeric codes should not automatically be interpreted as continuous measurements.
+
+The exact meaning and calculation of `total_landmark_count` should likewise follow the preprocessing documentation.
+
+### 3.3 Target variable
+
+The target variable is:
+
+`price_lakhs`
+
+It represents the sale price of a property in lakhs of Indian rupees.
+
+For example:
+
+* 100 lakhs = ₹1 crore.
+* 250 lakhs = ₹2.5 crore.
+* 500 lakhs = ₹5 crore.
+
+The prediction task is to estimate this sale price using the available property and location characteristics.
+
+During EDA, a logarithmic version of the target is also created to investigate the effect of price skewness.
+
+---
+
+# 4. Part A — EDA Setup and Dataset Verification
+
+## 4.1 Loading the dataset
+
+The first step is to load the cleaned dataset into a pandas DataFrame.
+
+The notebook uses:
+
+```python
+df = pd.read_csv("../data/processed/clean_v2.csv")
+```
+
+The relative path works when the notebook's working directory is `notebooks`.
+
+Loading the data into a DataFrame allows the dataset to be inspected and analysed using pandas, NumPy, Matplotlib, and Seaborn.
+
+## 4.2 Creating the figure directory
+
+The notebook creates the directory used to store the generated figures:
+
+```python
+os.makedirs("../reports/figures", exist_ok=True)
+```
+
+The `exist_ok=True` argument prevents an error if the directory already exists.
+
+The figures generated during EDA are saved in this directory so they can be reused in the project report without having to recreate them manually.
+
+## 4.3 Checking the dataset dimensions
+
+The dataset dimensions are checked using:
+
+```python
+print(df.shape)
+```
+
+Expected output:
+
+```text
+(7457, 18)
+```
+
+This is the initial shape before the two EDA helper columns are created.
+
+The shape is useful for confirming that the correct dataset has been loaded.
+
+If the dimensions differ, the input file or the preprocessing output should be checked before continuing.
+
+## 4.4 Inspecting the first rows
+
+The first five records are inspected using:
+
+```python
+display(df.head())
+```
+
+This provides a quick overview of the values stored in each column.
+
+It helps verify that:
+
+* The expected columns are present.
+* Prices and areas appear in their intended units.
+* Property categories are populated.
+* Geographic coordinates are available.
+* The dataset was loaded with the expected structure.
+
+============================================================
+PART A — DATASET VERIFICATION
+============================================================
+
+Dataset shape:
+(7457, 20)
+
+First five rows:
+prop_id	latitude	longitude	property_type	owntype	bedroom_num	bathroom_num	balcony_num	furnish	facing	age	floor_num	total_floor	total_landmark_count	area_sqft	area_is_carpet	locality_grouped	price_lakhs	price_per_sqft	log_price
+0	O71585872	28.406534	76.962792	Residential Apartment	1	4.0	4	4.0	4	1	2	14.0	26.0	10.0	3434.0	0	Sector 84 Gurgaon	263.0	7658.707047	5.575949
+1	T71585466	28.388907	76.951328	Residential Apartment	1	4.0	4	3.0	4	1	1	7.0	29.0	9.0	2870.0	0	Sector 81 Gurgaon	360.0	12543.554007	5.888878
+2	I71493958	28.518677	77.015115	Residential Apartment	1	3.0	3	3.0	4	0	1	14.0	28.0	8.0	2802.0	0	Sector 112 Gurgaon	385.0	13740.185582	5.955837
+3	X71361930	28.478440	76.986110	Residential Apartment	1	3.0	4	4.0	4	2	1	4.0	27.0	14.0	2290.0	0	Sector 104 Gurgaon	195.0	8515.283843	5.278115
+4	N71483500	28.416400	77.012620	Residential Apartment	1	2.0	2	3.0	2	3	6	12.0	30.0	13.0	1400.0	0	Sector 74 Gurgaon	162.0	11571.428571	5.093750
+
+
+Figure A1: First five records of the cleaned real-estate dataset.
+
+## 4.5 Checking data types
+
+The data types are inspected using:
+
+```python
+df.info()
+```
+
+This reveals the number of non-null values and the data type of each column.
+
+Data-type inspection is important because a column may contain numeric-looking values that should actually be treated as categories.
+
+For example, the values in `furnish`, `facing`, `owntype`, and `age` are encoded categories. Treating these values as ordinary continuous measurements could lead to misleading conclusions during correlation analysis.
+
+## 4.6 Checking missing values
+
+Missing values are counted using:
+
+```python
+print(df.isnull().sum())
+```
+
+The result identifies columns that contain missing data.
+
+A missing value does not always require a row to be deleted. The appropriate treatment depends on the feature, the number of missing values, and the purpose of the analysis.
+
+During the EDA setup, three missing values in `balcony_num` are filled using the median.
+
+The median is a measure of central tendency that is less affected by unusually high or low values than the mean.
+
+The operation is:
+
+```python
+df["balcony_num"] = df["balcony_num"].fillna(
+    df["balcony_num"].median()
+)
+```
+
+This fills missing balcony counts with the median of the available values.
+
+It is a practical treatment for exploratory analysis, although the final modelling pipeline should handle missing values in a way that is fitted only on the training data.
+
+## 4.7 Converting encoded categories for EDA
+
+The following columns are converted to strings:
+
+```python
+cat_codes = ["owntype", "furnish", "facing", "age"]
+
+df[cat_codes] = df[cat_codes].astype(str)
+```
+
+This conversion makes it clear that these columns represent category codes rather than ordinary continuous numeric variables.
+
+For example, a furnishing code of `2` is not necessarily twice as much furnishing as a code of `1`.
+
+Similarly, a facing-direction code should not be interpreted as a numerical magnitude.
+
+Converting these columns to strings helps prevent them from being accidentally included in analyses that assume continuous numerical meaning.
+
+The conversion does not decode the categories into their original descriptions. That requires the dataset's category definitions.
+
+## 4.8 Creating EDA helper columns
+
+Two additional columns are created for exploratory analysis.
+
+### A. Price per square foot
+
+```python
+df["price_per_sqft"] = (
+    df["price_lakhs"] * 100000 / df["area_sqft"]
+)
+```
+
+The price is stored in lakhs, so it is multiplied by 100,000 to convert it to rupees.
+
+The result is divided by the property area in square feet.
+
+The formula is:
+
+$$
+\text{Price per Sq Ft}
+=
+\frac{\text{Price in Lakhs}\times100000}
+{\text{Area in Sq Ft}}
+$$
+
+This derived measure makes it possible to compare property prices relative to their areas.
+
+A larger property may have a higher total price but a lower price per square foot. Therefore, total price and price per square foot provide different perspectives on the market.
+
+**Important:** `price_per_sqft` is calculated directly from the target variable and area. It is useful for EDA but must not be used as a predictor when training a model to estimate the same property's sale price. Doing so would introduce target leakage.
+
+### B. Log-transformed price
+
+```python
+df["log_price"] = np.log1p(df["price_lakhs"])
+```
+
+The `np.log1p()` function calculates:
+
+$$
+\text{log\_price}=\ln(1+\text{price\_lakhs})
+$$
+
+This transformation is investigated because real-estate prices can be strongly right-skewed.
+
+A small number of expensive properties can stretch the distribution toward higher prices, making the distribution difficult to visualise and potentially influencing some modelling methods.
+
+The logarithmic transformation compresses large values more strongly than small values.
+
+It does not remove the expensive properties. Instead, it changes the scale used to represent their prices.
+
+The target remains `price_lakhs` in the original cleaned dataset. `log_price` is an additional EDA variable used to investigate an alternative target scale.
+
+## 4.9 Verifying the prepared DataFrame
+
+After creating the helper columns, the notebook should verify the DataFrame again:
+
+```python
+print("Shape:", df.shape)
+
+print("\nMissing values:")
+print(df.isnull().sum())
+
+print("\nData types:")
+print(df.dtypes)
+```
+
+Expected shape:
+
+```text
+(7457, 20)
+```
+
+This assumes the notebook is using the original 7,457 rows and has created both helper columns.
+
+Data types:
+prop_id                     str
+latitude                float64
+longitude               float64
+property_type               str
+owntype                     str
+bedroom_num             float64
+bathroom_num              int64
+balcony_num             float64
+furnish                     str
+facing                      str
+age                         str
+floor_num               float64
+total_floor             float64
+total_landmark_count    float64
+area_sqft               float64
+area_is_carpet            int64
+locality_grouped            str
+price_lakhs             float64
+price_per_sqft          float64
+log_price               float64
+dtype: object
+
+Missing values:
+...
+
+
+Insert the actual output of the final shape, missing-value count, and data-type checks.
+
+Recommended caption:
+
+**Table A1: Dataset dimensions, missing values, and data types after EDA setup.**
+
+---
+
+# 5. Part B — Descriptive Statistical Analysis
+
+## 5.1 Purpose
+
+Descriptive statistics provide a numerical summary of the dataset.
+
+Before studying relationships between features, it is useful to understand the typical values, spread, and range of the numerical variables.
+
+This step examines properties such as price, area, bedrooms, bathrooms, and other numeric attributes.
+
+## 5.2 Generating descriptive statistics
+
+The notebook uses:
+
+```python
+display(df.describe().T)
+```
+
+The `describe()` function calculates summary statistics for numerical columns.
+
+The `.T` operation transposes the result so that each variable appears as a row, making the table easier to read.
+
+The resulting statistics include:
+
+| Statistic          | Meaning                            |
+| ------------------ | ---------------------------------- |
+| Count              | Number of non-missing observations |
+| Mean               | Arithmetic average                 |
+| Standard deviation | Measure of spread around the mean  |
+| Minimum            | Smallest observed value            |
+| 25%                | First quartile                     |
+| 50%                | Median                             |
+| 75%                | Third quartile                     |
+| Maximum            | Largest observed value             |
+
+The mean and median provide different views of the typical property.
+
+When the mean is substantially larger than the median, this can indicate a right-skewed distribution in which relatively expensive properties influence the average.
+
+The standard deviation and quartiles help describe how widely property prices and sizes vary.
+
+## 5.3 Examining property types
+
+The distribution of property types is examined using:
+
+```python
+display(df["property_type"].value_counts())
+```
+
+This shows how many listings belong to each property category.
+
+Property types can have different pricing patterns because apartments, builder floors, houses, and land may differ in size, facilities, ownership arrangements, and market demand.
+
+However, the number of listings in each category must be considered when interpreting comparisons.
+
+A category containing very few records may produce an unstable estimate of its typical price.
+
+## 5.4 Examining encoded categories
+
+The notebook also checks the frequency of the coded categories:
+
+```python
+for col in cat_codes:
+    print(f"\n{col}")
+    print(df[col].value_counts(dropna=False))
+```
+
+This helps identify common and rare category codes.
+
+The original category definitions should be consulted before interpreting what each code means.
+
+A category code occurring frequently indicates that it is common in the dataset, but frequency alone does not establish that the category increases or decreases prices.
+
+
+============================================================
+PART B — DESCRIPTIVE STATISTICS
+============================================================
+count	mean	std	min	25%	50%	75%	max
+latitude	7457.0	28.437972	0.041522	28.350930	28.406140	28.425181	28.472552	28.534810
+longitude	7457.0	77.040553	0.052859	76.810760	76.997421	77.054558	77.084474	77.191500
+bedroom_num	7457.0	3.378839	0.768965	1.000000	3.000000	3.000000	4.000000	8.000000
+bathroom_num	7457.0	3.635778	1.020496	0.000000	3.000000	4.000000	4.000000	9.000000
+balcony_num	7457.0	2.982433	0.875781	0.000000	2.000000	3.000000	4.000000	4.000000
+floor_num	6703.0	7.519171	6.602827	0.000000	2.000000	5.000000	11.000000	48.000000
+total_floor	7455.0	15.211133	11.785841	0.000000	4.000000	14.000000	24.000000	51.000000
+total_landmark_count	7455.0	22.166063	16.108926	1.000000	10.000000	14.000000	44.000000	50.000000
+area_sqft	7457.0	2501.795235	1109.578017	594.000000	1777.000000	2217.000000	2872.000000	10000.000000
+area_is_carpet	7457.0	0.255062	0.435925	0.000000	0.000000	0.000000	1.000000	1.000000
+price_lakhs	7457.0	347.218318	307.582371	100.000000	175.000000	250.000000	405.000000	4500.000000
+price_per_sqft	7457.0	13144.320574	6337.273591	3395.061728	9090.909091	11626.898048	15000.000000	57547.587428
+log_price	7457.0	5.631945	0.614008	4.615121	5.170484	5.525453	6.006353	8.412055
+
+
+Insert the actual output of `df.describe().T`.
+
+Recommended caption:
+
+**Table B1: Descriptive statistics of the cleaned real-estate dataset.**
+
+Property type counts:
+property_type
+Residential Apartment        4750
+Independent/Builder Floor    2274
+Independent House/Villa       433
+Name: count, dtype: int64
+
+Category counts: owntype
+owntype
+1    7375
+2      43
+3      31
+4       8
+Name: count, dtype: int64
+
+Category counts: furnish
+furnish
+4    5764
+2     940
+1     509
+0     244
+Name: count, dtype: int64
+
+Category counts: facing
+facing
+5    2500
+3    1728
+1    1045
+0     833
+4     468
+6     269
+7     262
+2     181
+8     171
+Name: count, dtype: int64
+
+Category counts: age
+age
+1    2447
+6    2059
+5    1255
+2    1157
+3     538
+0       1
+Name: count, dtype: int64
+
+Insert the property-type counts and the category-code frequency tables.
+
+Recommended caption:
+
+**Table B2: Distribution of property types and encoded categorical variables.**
+
+## 5.5 Main observations to record
+
+After examining the tables, record:
+
+1. The mean and median sale price.
+2. The minimum and maximum sale price.
+3. The mean and median property area.
+4. The range of bedroom and bathroom counts.
+5. The most common property type.
+6. Any property categories containing relatively few listings.
+7. Any unusual or unexpected category values.
+
+These observations establish a numerical baseline for the subsequent visual analysis.
+
+---
+
+# 6. Part C — Analysis of Price Distributions
+
+## 6.1 Purpose
+
+Price distributions help explain how property prices are spread across the dataset.
+
+The analysis examines three measures:
+
+1. Sale price in lakhs.
+2. Log-transformed sale price.
+3. Price per square foot.
+
+Histograms are used to understand the shape of each distribution.
+
+This is particularly important because real-estate prices often vary considerably, even within the same city.
+
+## 6.2 Distribution of original sale prices
+
+The first histogram uses `price_lakhs`.
+
+The x-axis represents sale price in lakhs, while the y-axis represents the number of listings within each price interval.
+
+This plot helps reveal whether most properties fall within a relatively narrow price range or whether the dataset contains a long tail of expensive properties.
+
+A right-skewed distribution typically has most observations concentrated at lower values and a tail extending toward higher values.
+
+Such a pattern can occur when a dataset contains many moderately priced properties and a smaller number of luxury properties.
+
+The histogram is saved as part of:
+
+`reports/figures/01_price_distribution.png`
+
+## 6.3 Distribution of log-transformed prices
+
+The second histogram uses `log_price`.
+
+The transformation compresses the larger price values, allowing the distribution to be examined on a different scale.
+
+The purpose is not to assume that the transformed distribution will be normal. Instead, it allows the analyst to assess whether the transformation produces a more balanced distribution.
+
+If the original prices are strongly right-skewed and the log-transformed values are less skewed, this supports evaluating a logarithmic target during model development.
+
+A histogram alone cannot establish which target produces the best predictive model. That decision must also consider model evaluation results.
+
+## 6.4 Distribution of price per square foot
+
+The third histogram uses `price_per_sqft`.
+
+This measure expresses the price relative to the property area.
+
+It can reveal whether the dataset contains properties with unusually high or low prices relative to their size.
+
+Such observations may arise from genuine market differences, property characteristics, location, or data-quality issues.
+
+A high price per square foot should not automatically be considered an error.
+
+For example, a relatively small property in a premium locality may have a high price per square foot while still having a lower total price than a large property elsewhere.
+
+## 6.5 Comparing skewness and central tendency
+
+The notebook examines skewness and compares means with medians.
+
+Skewness measures the asymmetry of a distribution.
+
+A positive skewness value generally indicates a longer right tail, while a value closer to zero indicates less asymmetry. A value near zero does not, by itself, prove that a distribution is normal.
+
+Comparing the mean and median helps assess the influence of high-priced properties.
+
+The following code can be used to generate a compact summary:
+
+```python
+distribution_summary = pd.DataFrame({
+    "mean": [
+        df["price_lakhs"].mean(),
+        df["log_price"].mean(),
+        df["price_per_sqft"].mean()
+    ],
+    "median": [
+        df["price_lakhs"].median(),
+        df["log_price"].median(),
+        df["price_per_sqft"].median()
+    ],
+    "skewness": [
+        df["price_lakhs"].skew(),
+        df["log_price"].skew(),
+        df["price_per_sqft"].skew()
+    ]
+}, index=[
+    "price_lakhs",
+    "log_price",
+    "price_per_sqft"
+])
+
+display(distribution_summary.round(3))
+```
+
+<img width="3173" height="768" alt="image" src="https://github.com/user-attachments/assets/cbc7010a-c6bb-4709-8199-4386bcb51253" />
+
+
+
+Insert the image:
+
+`reports/figures/01_price_distribution.png`
+
+Recommended caption:
+
+**Figure C1: Distribution of original sale prices, log-transformed prices, and price per square foot.**
+
+
+mean	median	skewness
+price_lakhs	347.218	250.000	4.203
+log_price	5.632	5.525	0.769
+price_per_sqft	13144.321	11626.898	2.211
+
+
+Insert the output of `distribution_summary`.
+
+Recommended caption:
+
+**Table C1: Mean, median, and skewness of the three price-related variables.**
+
+## 6.6 Interpretation and target decision
+
+Use the actual histogram and summary statistics to answer:
+
+* Is the original price distribution right-skewed?
+* Does the log transformation reduce the observed skewness?
+* Is the mean higher than the median?
+* Does price per square foot contain a long tail?
+* Is there evidence that a logarithmic target is worth evaluating?
+
+### Preliminary conclusion
+
+A logarithmic target is worth considering when the original price distribution is strongly right-skewed and the transformation improves the behaviour of the target.
+
+However, this EDA stage does not establish that the logarithmic target will outperform the original target in every model.
+
+The decision will be evaluated during model development.
+
+---
+
+# 7. Part D — Correlation Analysis
+
+## 7.1 Purpose
+
+Correlation analysis measures the strength and direction of relationships between numerical variables.
+
+In this project, correlation analysis is used to investigate:
+
+* How area relates to property price.
+* Whether bedroom and bathroom counts are associated with price.
+* Whether other numerical features have relationships with the target.
+* Whether some predictors are strongly related to one another.
+
+The last point is important because highly related predictors may contain overlapping information.
+
+## 7.2 Selecting appropriate columns
+
+The correlation analysis uses:
+
+```python
+num_cols = [
+    "log_price",
+    "area_sqft",
+    "bedroom_num",
+    "bathroom_num",
+    "balcony_num",
+    "floor_num",
+    "total_floor",
+    "total_landmark_count",
+    "area_is_carpet",
+    "latitude",
+    "longitude"
+]
+```
+
+The encoded categorical variables `owntype`, `furnish`, `facing`, and `age` are excluded from this Pearson correlation analysis because their numeric codes do not necessarily represent meaningful numerical distances.
+
+The `price_per_sqft` column is also excluded.
+
+This is because price per square foot is calculated directly from the target price and property area. Including it in target-correlation analysis could create a misleading interpretation of its relationship with price.
+
+## 7.3 Checking missing values
+
+Before calculating the correlation matrix, the notebook checks the selected columns for missing values:
+
+```python
+print(df[num_cols].isnull().sum())
+```
+
+Some columns may contain missing observations.
+
+In the current dataset, earlier checks found:
+
+* `floor_num`: 754 missing values.
+* `total_floor`: 2 missing values.
+* `total_landmark_count`: 2 missing values.
+
+The exact values should be confirmed using the current notebook output.
+
+Pandas calculates each pairwise correlation using observations available for that pair. Therefore, the entire dataset does not need to be imputed or reduced to complete cases solely to create the correlation matrix.
+
+However, the varying number of observations used for different pairs should be kept in mind when interpreting the results.
+
+## 7.4 Calculating the correlation matrix
+
+The Pearson correlation matrix is calculated using:
+
+```python
+corr = df[num_cols].corr(method="pearson")
+```
+
+Pearson correlation ranges from -1 to +1.
+
+| Correlation | General interpretation              |
+| ----------- | ----------------------------------- |
+| Close to +1 | Strong positive linear relationship |
+| Close to 0  | Weak or absent linear relationship  |
+| Close to -1 | Strong negative linear relationship |
+
+A positive correlation means that larger values of one variable tend to be associated with larger values of the other.
+
+A negative correlation means that larger values of one variable tend to be associated with smaller values of the other.
+
+Correlation does not establish causation, and a low Pearson correlation does not rule out a nonlinear relationship.
+
+## 7.5 Creating the correlation heatmap
+
+The notebook displays the correlation matrix as a heatmap.
+
+The upper triangle is masked to avoid displaying the same pairwise correlations twice.
+
+The resulting figure is saved as:
+
+`reports/figures/02_correlation_heatmap.png`
+
+<img width="2087" height="1779" alt="image" src="https://github.com/user-attachments/assets/a78c7c0e-51c3-4a07-81a4-4bdca8af9af6" />
+
+
+Insert the image:
+
+`reports/figures/02_correlation_heatmap.png`
+
+Recommended caption:
+
+**Figure D1: Pearson correlation heatmap of the selected numerical features and log-transformed sale price.**
+
+## 7.6 Identifying features correlated with the target
+
+The notebook sorts the correlations with `log_price`:
+
+```python
+display(
+    corr["log_price"]
+    .drop("log_price")
+    .sort_values(ascending=False)
+)
+```
+
+This produces a ranked list of the selected numerical variables based on their Pearson correlation with log-transformed price.
+
+The result helps identify variables with stronger positive or negative linear associations with the target.
+
+Correlation with log_price:
+area_sqft               0.752432
+bathroom_num            0.639590
+bedroom_num             0.623382
+longitude               0.469302
+floor_num               0.189461
+balcony_num             0.188906
+latitude                0.157510
+total_landmark_count    0.098751
+total_floor             0.089147
+area_is_carpet         -0.015366
+Name: log_price, dtype: float64
+
+Predictor correlations:
+area_sqft	bedroom_num	bathroom_num
+area_sqft	1.000	0.657	0.658
+bedroom_num	0.657	1.000	0.807
+bathroom_num	0.658	0.807	1.000
+
+
+Insert the actual sorted correlation output.
+
+Recommended caption:
+
+**Table D1: Pearson correlations between log-transformed price and the selected numerical features.**
+
+Do not state that area, bathrooms, or bedrooms have the strongest correlations unless the actual output supports that conclusion.
+
+## 7.7 Checking potential multicollinearity
+
+Multicollinearity occurs when two or more predictors are strongly related to one another.
+
+In this project, area, bedroom count, and bathroom count are worth examining because larger properties may have more bedrooms and bathrooms.
+
+The following code identifies pairs with an absolute Pearson correlation greater than 0.8:
+
+```python
+predictor_corr = df[
+    [
+        "area_sqft",
+        "bedroom_num",
+        "bathroom_num",
+        "balcony_num",
+        "floor_num",
+        "total_floor",
+        "total_landmark_count"
+    ]
+].corr()
+
+threshold = 0.8
+
+for i in range(len(predictor_corr.columns)):
+    for j in range(i + 1, len(predictor_corr.columns)):
+
+        value = predictor_corr.iloc[i, j]
+
+        if pd.notna(value) and abs(value) > threshold:
+            print(
+                predictor_corr.columns[i],
+                "and",
+                predictor_corr.columns[j],
+                "correlation:",
+                round(value, 3)
+            )
+```
+
+The threshold is a screening rule, not a universal definition of multicollinearity.
+
+Pairs with weaker correlations may still be related, while strongly correlated predictors do not always need to be removed.
+
+The final decision should depend on the modelling algorithm, feature meaning, validation performance, and other diagnostics.
+
+## 7.8 Limitations of correlation analysis
+
+The correlation matrix does not include every important property attribute.
+
+In particular, categorical features and locality may have meaningful relationships with price that are not represented by this numeric Pearson correlation matrix.
+
+Correlation also measures linear relationships rather than every possible pattern.
+
+Therefore, correlation analysis is used together with the distributions, boxplots, locality summaries, and geographical maps.
+
+---
+
+# 8. Part E — Price Versus Area, Bedrooms, and Property Type
+
+## 8.1 Purpose
+
+This section investigates how property prices vary with selected property characteristics.
+
+The analysis focuses on:
+
+1. Property area.
+2. Number of bedrooms.
+3. Property type.
+4. Additional categorical characteristics.
+
+Scatterplots and boxplots are used because they provide different types of information.
+
+A scatterplot shows the relationship between two numerical variables. A boxplot summarises the distribution of a numerical variable within different categories.
+
+---
+
+## 8.2 E1 — Relationship Between Price and Area
+
+### Objective
+
+Property area is a potential predictor of sale price.
+
+A larger property may have a higher total sale price, but the relationship may not be perfectly linear.
+
+The relationship can also vary across locations and property types.
+
+### Scatterplot using the original price scale
+
+The first scatterplot uses:
+
+* X-axis: `area_sqft`
+* Y-axis: `price_lakhs`
+
+Each point represents a property listing.
+
+The plot helps identify whether larger properties generally tend to have higher sale prices and whether the relationship contains unusual patterns.
+
+A wide vertical spread of points at similar areas would indicate that properties of similar sizes can have different prices.
+
+This is plausible in real estate because size is not the only factor influencing price.
+
+### Scatterplot using logarithmic axes
+
+The second scatterplot uses logarithmic scales for area and price.
+
+This can make relationships across a wider range of property sizes and prices easier to inspect.
+
+It can also make multiplicative patterns more visible.
+
+The log-scaled plot should be interpreted alongside the original-scale plot because both views provide useful information.
+
+### Saved output
+
+The figure is saved as:
+
+`reports/figures/03a_price_vs_area.png`
+
+<img width="2772" height="968" alt="image" src="https://github.com/user-attachments/assets/64203eca-9171-4f7c-b683-7f9b6034c32e" />
+
+
+Insert:
+
+`reports/figures/03a_price_vs_area.png`
+
+Recommended caption:
+
+**Figure E1: Relationship between property area and sale price using original and logarithmic scales.**
+
+### Interpretation
+
+Use the actual plots to record:
+
+* Whether sale price generally increases with area.
+* Whether the relationship appears approximately linear or nonlinear.
+* Whether prices vary considerably among properties with similar areas.
+* Whether the logarithmic view reveals a clearer pattern.
+* Whether unusual observations require further investigation.
+
+Do not assume that area alone explains the sale price.
+
+---
+
+## 8.3 E2 — Relationship Between Price and Bedroom Count
+
+### Objective
+
+Bedroom count is a categorical-like discrete variable in this analysis.
+
+A property with more bedrooms may be larger or intended for a different market segment. However, bedroom count does not uniquely determine property area or price.
+
+The analysis groups properties by the number of bedrooms and compares their price distributions.
+
+### Boxplot
+
+The notebook creates a boxplot of `price_lakhs` for each bedroom count.
+
+The y-axis uses a logarithmic scale to make differences easier to examine when prices vary widely.
+
+A boxplot displays:
+
+* The median price.
+* The middle 50% of observations.
+* The spread of the central observations.
+* Potential outliers.
+
+Outliers shown by a boxplot are observations that fall outside the plot's standard whisker range. They are not automatically data errors.
+
+### Summary statistics
+
+The notebook also calculates statistics grouped by bedroom count, including the number of listings, median price, mean price, and price range.
+
+This allows the numerical results to be compared with the boxplot.
+
+### Saved output
+
+`reports/figures/03b_price_vs_bedrooms.png`
+
+<img width="1768" height="968" alt="image" src="https://github.com/user-attachments/assets/7b7709c3-bd26-4a79-a631-5e8d1f84b156" />
+
+
+Insert:
+
+`reports/figures/03b_price_vs_bedrooms.png`
+
+Recommended caption:
+
+**Figure E2: Distribution of sale prices across bedroom counts.**
+
+Predictor correlations:
+area_sqft	bedroom_num	bathroom_num
+area_sqft	1.000	0.657	0.658
+bedroom_num	0.657	1.000	0.807
+bathroom_num	0.658	0.807	1.000
+
+
+Insert the actual grouped bedroom-price summary.
+
+Recommended caption:
+
+**Table E1: Sale-price statistics grouped by bedroom count.**
+
+### Interpretation
+
+Use the results to answer:
+
+* Does median price generally increase with bedroom count?
+* Do categories overlap considerably?
+* Are some bedroom categories represented by relatively few listings?
+* Does the mean differ substantially from the median?
+* Are there unusually high or low prices within particular categories?
+
+A general increase in median price would indicate an association in this dataset, not proof that increasing bedroom count alone causes prices to increase.
+
+---
+
+## 8.4 E3 — Price Differences Between Property Types
+
+### Objective
+
+Different property types may have different price distributions.
+
+For example, apartments, builder floors, houses, and villas can differ in their areas, facilities, locations, and ownership arrangements.
+
+The purpose of this analysis is to compare their observed prices.
+
+### Boxplot
+
+The notebook creates a boxplot of `price_lakhs` grouped by `property_type`.
+
+Property types with fewer than 30 listings are excluded from this particular plot to reduce the risk of interpreting very small groups as representative distributions.
+
+This plotting threshold is an EDA choice. It does not automatically mean that the excluded property types should be removed from the dataset or model.
+
+The categories are ordered by their observed median prices, and the price axis uses a logarithmic scale.
+
+### Summary statistics
+
+The analysis also calculates:
+
+* Number of listings.
+* Median price.
+* Mean price.
+* Minimum price.
+* Maximum price.
+
+The median is useful because it is less sensitive than the mean to extremely high prices.
+
+### Saved output
+
+`reports/figures/03c_price_by_property_type.png`
+
+<img width="1991" height="968" alt="image" src="https://github.com/user-attachments/assets/9eede19c-f509-4d07-8983-abe588c63c82" />
+
+
+Insert:
+
+`reports/figures/03c_price_by_property_type.png`
+
+Recommended caption:
+
+**Figure E3: Sale-price distributions across property types.**
+
+<img width="1991" height="968" alt="image" src="https://github.com/user-attachments/assets/b98d4f17-458e-4bc7-b16d-2ca97d2a48f5" />
+
+
+Insert the actual property-type summary table.
+
+Recommended caption:
+
+**Table E2: Descriptive statistics of sale prices grouped by property type.**
+
+### Interpretation
+
+Record:
+
+* Which property types have the highest and lowest observed median prices.
+* Whether the distributions overlap.
+* Which property types contain relatively few listings.
+* Whether the mean and median differ substantially.
+* Whether the results suggest that property type should be retained as a categorical predictor.
+
+The observed ranking is specific to this dataset and should not automatically be generalised to all properties in Gurgaon.
+
+---
+
+## 8.5 E4 — Other Categorical Characteristics
+
+The analysis also examines additional characteristics:
+
+* Furnishing category.
+* Property-age category.
+* Area-source indicator represented by `area_is_carpet`.
+
+These features may help explain differences between listings that have similar areas or bedroom counts.
+
+### Furnishing category
+
+The sale-price distribution is compared across the observed furnishing categories.
+
+This can reveal whether furnished, semi-furnished, and unfurnished properties, or their corresponding encoded categories, have different observed price distributions.
+
+The original category definitions must be checked before assigning descriptive labels to the codes.
+
+### Property-age category
+
+The sale-price distribution is compared across the observed property-age categories.
+
+Property age may be associated with condition, construction type, maintenance, or other characteristics. The plot can reveal associations but cannot establish why the differences occur.
+
+The encoded values must be interpreted using the original dataset documentation.
+
+### Area-source indicator
+
+The price per square foot is compared across the values of `area_is_carpet`.
+
+This analysis helps examine whether the source used for the selected area measurement is associated with differences in calculated price per square foot.
+
+The meaning of the indicator should be confirmed from the preprocessing code before drawing a detailed conclusion.
+
+### Saved output
+
+`reports/figures/03d_other_categoricals.png`
+
+<img width="3168" height="968" alt="image" src="https://github.com/user-attachments/assets/88e0277b-07d9-4425-aa06-e1b3abc28222" />
+
+
+Insert:
+
+`reports/figures/03d_other_categoricals.png`
+
+Recommended caption:
+
+**Figure E4: Exploratory comparisons of price by furnishing and property-age categories, and price per square foot by area-source indicator.**
+
+### Overall interpretation of Part E
+
+Part E helps determine whether property prices vary across important property characteristics.
+
+Area, bedroom count, bathroom count, property type, furnishing, and age are plausible predictors to investigate during modelling.
+
+However, the actual strength and usefulness of each feature must be established through the observed EDA results and subsequent model evaluation.
+
+---
+
+# 9. Part F — Locality-Level Price Analysis
+
+## 9.1 Purpose
+
+Location is an important consideration in real-estate analysis.
+
+Properties with similar areas and room counts may have different prices because they are situated in different localities.
+
+This section compares prices across the grouped localities represented in the dataset.
+
+The analysis examines both:
+
+1. Median total sale price.
+2. Median price per square foot.
+
+These measures describe different aspects of the market.
+
+## 9.2 Grouping by locality
+
+The notebook groups listings by `locality_grouped`.
+
+For each locality, it calculates:
+
+* Number of listings.
+* Median sale price.
+* Mean sale price.
+* Median price per square foot.
+
+A minimum of 15 listings is required for a locality to appear in the ranking.
+
+The purpose of this threshold is to avoid ranking localities using extremely small groups, for which a few observations could dominate the result.
+
+The `Other` category is excluded from the locality ranking because it combines less frequent localities rather than representing one specific geographical area.
+
+These decisions affect the ranking, so the threshold and exclusion should be documented when interpreting the results.
+
+## 9.3 Why median price is used
+
+The median represents the middle observation after prices are sorted.
+
+It is less sensitive than the mean to a small number of unusually expensive properties.
+
+This makes it useful for comparing the typical observed price across localities.
+
+The median does not remove the influence of all differences between properties. For example, one locality may contain larger homes than another.
+
+Therefore, locality-level total price and price per square foot should be interpreted together.
+
+## 9.4 Top and bottom localities by median sale price
+
+The first ranking identifies localities with the highest and lowest median sale prices.
+
+The corresponding figure is saved as:
+
+`reports/figures/04a_locality_median_price.png`
+
+<img width="2982" height="1168" alt="image" src="https://github.com/user-attachments/assets/210ca182-8879-4b5d-961d-be347e8b71cf" />
+
+
+Insert:
+
+`reports/figures/04a_locality_median_price.png`
+
+Recommended caption:
+
+**Figure F1: Ten highest- and lowest-ranked eligible localities by median sale price.**
+
+The figure compares localities with at least 15 listings, excluding `Other`.
+
+## 9.5 Top and bottom localities by median price per square foot
+
+The second ranking compares localities by median price per square foot.
+
+The figure is saved as:
+
+`reports/figures/04b_locality_median_pps.png`
+
+<img width="2982" height="1168" alt="image" src="https://github.com/user-attachments/assets/4fad443d-ea49-4b3a-91a9-9a1ca4d7cc62" />
+
+
+Insert:
+
+`reports/figures/04b_locality_median_pps.png`
+
+Recommended caption:
+
+**Figure F2: Ten highest- and lowest-ranked eligible localities by median price per square foot.**
+
+This ranking helps compare the observed price relative to property size.
+
+A locality can have a high median total price because its properties tend to be larger, while its median price per square foot may be less exceptional.
+
+Conversely, smaller properties in a premium locality can have high prices per square foot without having the highest total sale prices.
+
+## 9.6 Comparing the two rankings
+
+The two rankings should be compared to identify localities that appear in both lists or have noticeably different positions.
+
+Record:
+
+* Which eligible localities have the highest observed median sale prices.
+* Which have the lowest observed median sale prices.
+* Which have the highest median price per square foot.
+* Which have the lowest median price per square foot.
+* Whether the two rankings identify similar or different localities.
+* Whether the listing counts are large enough to make the comparisons informative.
+
+Eligible localities: 96
+
+Top 10 by median price:
+listings	median_price	mean_price	median_pps
+locality_grouped				
+Sector 42 Gurgaon	46	2500.0	2132.63	42980.30
+Sector 33 Gurgaon	24	987.5	718.92	20151.52
+Sector 54 Gurgaon	216	725.0	821.53	24843.52
+MG Road	18	650.5	666.83	22222.22
+Sector 53 Gurgaon	81	549.0	574.06	19387.76
+Sector 112 Gurgaon	56	545.5	598.80	12486.95
+Sector 26 Gurgaon	24	512.5	615.00	16228.24
+Sector 59 Gurgaon	142	502.5	503.30	18247.25
+DLF Phase 5	100	499.5	454.25	18716.64
+DLF Phase 3	67	451.0	626.57	13280.21
+
+Bottom 10 by median price:
+listings	median_price	mean_price	median_pps
+locality_grouped				
+Sector 95 Gurgaon	22	115.0	130.82	6791.81
+Sector 68 Gurgaon	59	120.0	132.00	8976.38
+Sector 89 Gurgaon	15	125.0	124.67	8569.30
+Sector 37C Gurgaon	47	125.0	132.81	6916.43
+Sector 103 Gurgaon	52	126.5	142.27	7811.96
+Sector 71 Gurgaon	42	127.5	133.31	6936.38
+Sector 93 Gurgaon	50	137.0	135.80	9017.73
+Sector 107 Gurgaon	25	140.0	149.88	7514.15
+Sector 82 Gurgaon	72	141.0	198.06	7266.07
+Sector 90 Gurgaon	68	145.5	149.84	7683.63
+
+Top 10 by median price per square foot:
+listings	median_price	mean_price	median_pps
+locality_grouped				
+Sector 42 Gurgaon	46	2500.0	2132.63	42980.30
+Sector 54 Gurgaon	216	725.0	821.53	24843.52
+MG Road	18	650.5	666.83	22222.22
+Sector 33 Gurgaon	24	987.5	718.92	20151.52
+Sector 53 Gurgaon	81	549.0	574.06	19387.76
+DLF Phase 5	100	499.5	454.25	18716.64
+sector 58 Gurgaon	28	410.0	425.96	18499.21
+Sector 59 Gurgaon	142	502.5	503.30	18247.25
+Sector 62 Gurgaon	115	423.0	509.71	16781.84
+Sector 108 Gurgaon	107	325.0	321.65	16561.60
+
+Bottom 10 by median price per square foot:
+listings	median_price	mean_price	median_pps
+locality_grouped				
+Sector 95 Gurgaon	22	115.0	130.82	6791.81
+Sector 37C Gurgaon	47	125.0	132.81	6916.43
+Sector 71 Gurgaon	42	127.5	133.31	6936.38
+Sector 82 Gurgaon	72	141.0	198.06	7266.07
+Sector 84 Gurgaon	81	160.0	175.46	7314.29
+Sector 107 Gurgaon	25	140.0	149.88	7514.15
+Sector 91 Gurgaon	40	162.0	172.42	7545.65
+Sector 90 Gurgaon	68	145.5	149.84	7683.63
+Sector 99A Gurgaon	18	150.0	146.28	7686.53
+Sector 103 Gurgaon	52	126.5	142.27	7811.96
+
+
+Insert the actual locality summary table, including listing count, median price, mean price, and median price per square foot.
+
+Recommended caption:
+
+**Table F1: Locality-level price statistics used to create the top and bottom rankings.**
+
+Do not fill the locality names or prices in this README until the notebook outputs have been checked.
+
+### Interpretation
+
+Locality-level differences support investigating location as a predictor in the next stage of the project.
+
+However, these comparisons do not isolate the effect of location from property size, property type, furnishing, or other differences between the listings.
+
+The results establish observed differences in the dataset, not causal effects.
+
+---
+
+# 10. Part G — Geographic Distribution of Property Prices
+
+## 10.1 Purpose
+
+The locality analysis compares named locality groups. Geographic visualisation provides a complementary view by plotting the property listings using latitude and longitude.
+
+This helps examine how listings are distributed spatially and whether properties with different prices appear in different areas.
+
+The analysis uses two forms of visualisation:
+
+1. A static scatterplot map.
+2. An interactive Folium map.
+
+The static plot is suitable for the project report, while the interactive map allows individual listings to be inspected.
+
+## 10.2 Checking geographic coordinates
+
+The notebook examines the latitude and longitude columns using descriptive statistics.
+
+The checks include:
+
+* Minimum latitude.
+* Maximum latitude.
+* Minimum longitude.
+* Maximum longitude.
+* Number of unique latitude values.
+* Number of unique longitude values.
+
+These checks help establish whether the coordinates fall within the expected geographical area.
+
+Earlier checks showed coordinates within approximately:
+
+| Coordinate |  Minimum |  Maximum |
+| ---------- | -------: | -------: |
+| Latitude   | 28.35093 | 28.53481 |
+| Longitude  | 76.81076 | 77.19150 |
+
+These are previously observed values and should be verified against the current dataset before being reported as final results.
+
+## 10.3 Static geographic price map
+
+The static map uses longitude on the x-axis and latitude on the y-axis.
+
+Each point represents a property listing.
+
+The first plot colours the points according to `log_price`.
+
+The second plot colours them according to `price_per_sqft`.
+
+This makes it possible to examine the spatial distribution of total prices and prices relative to area.
+
+The price-per-square-foot colour scale is capped at the 98th percentile for visualisation. This prevents a small number of very high values from dominating the colour range.
+
+This cap affects only the visual representation; it does not change the underlying price-per-square-foot values.
+
+### Saved output
+
+`reports/figures/05a_price_map_static.png`
+
+<img width="2949" height="1168" alt="image" src="https://github.com/user-attachments/assets/f1e275de-fd3e-4d73-a3bf-2a30f2b09b92" />
+
+
+Insert:
+
+`reports/figures/05a_price_map_static.png`
+
+Recommended caption:
+
+**Figure G1: Geographic distribution of property listings coloured by log-transformed sale price and price per square foot.**
+
+### Interpretation
+
+Examine the figure to identify:
+
+* Whether listings form visible geographic clusters.
+* Whether higher- and lower-priced listings appear in different areas.
+* Whether price-per-square-foot patterns differ from total-price patterns.
+* Whether the same locations contain a wide range of prices.
+* Whether the map appears to have any coordinate anomalies.
+
+A scatterplot using coordinates is not a full street map. It displays the relative geographic positions of listings but does not automatically identify roads, neighbourhood boundaries, or specific landmarks.
+
+## 10.4 Checking coordinate duplication
+
+Multiple listings may share the same latitude and longitude.
+
+This can happen when the dataset assigns one representative coordinate to a locality, when several listings refer to the same building or complex, or when coordinates are approximate.
+
+Therefore, repeated coordinates do not automatically mean that the records are duplicates.
+
+The notebook examines how many unique coordinate pairs occur within each grouped locality.
+
+This check helps establish whether the coordinates distinguish individual properties or mainly represent approximate locality-level positions.
+
+Coordinate summary:
+latitude	longitude
+count	7457.000000	7457.000000
+mean	28.437972	77.040553
+std	0.041522	0.052859
+min	28.350930	76.810760
+25%	28.406140	76.997421
+50%	28.425181	77.054558
+75%	28.472552	77.084474
+max	28.534810	77.191500
+
+Unique coordinate pairs: 1137
+
+Localities with the fewest unique coordinate pairs:
+listings	unique_coordinate_pairs
+locality_grouped		
+MG Road	18	2
+Sector 26 Gurgaon	24	2
+Sector 110 A Gurgaon	12	2
+Sector 3 Gurgaon	24	2
+Sector 36A Gurgaon	12	2
+Sector 40 Gurgaon	21	2
+Sector-33 Sohna	29	2
+Sector 89 A Gurgaon	15	2
+Sector 30 Gurgaon	14	3
+Sector 4 Gurgaon	10	3
+Sector 27 Gurgaon	10	3
+Sector 33 Gurgaon	24	3
+Sector 74 Gurgaon	51	3
+Suncity	18	3
+Sector 110 Gurgaon	28	3
+
+
+
+Insert the actual output listing the localities with the fewest unique coordinate pairs.
+
+Recommended caption:
+
+**Table G1: Number of unique coordinate pairs within grouped localities.**
+
+### Interpretation
+
+If a locality contains many listings but only one or two unique coordinate pairs, its coordinates may not provide precise property-level locations.
+
+If multiple localities share coordinates, this should also be investigated.
+
+The geographical analysis must therefore consider the precision of the original coordinate data.
+
+## 10.5 Interactive map using Folium
+
+Folium is used to create an interactive HTML map.
+
+Unlike the static plot, the interactive map can display additional details when the user hovers over a property marker.
+
+The markers include information such as:
+
+* Grouped locality.
+* Sale price in lakhs.
+* Area in square feet.
+* Price per square foot.
+
+The marker colours represent price per square foot.
+
+To keep the interactive map manageable, up to 3,000 listings are sampled from the available records using a fixed random seed.
+
+The fixed seed makes the sample reproducible when the underlying dataset remains unchanged.
+
+The map is saved to:
+
+`reports/price_map.html`
+
+### Opening the map
+
+From PowerShell:
+
+```powershell
+cd D:\real-estate-price-prediction
+start reports\price_map.html
+```
+
+The map uses online background tiles, so the browser normally needs an internet connection to display the background map.
+
+The property markers are generated from the dataset.
+
+<img width="1063" height="667" alt="image" src="https://github.com/user-attachments/assets/6c7251cb-e45c-4b5d-a807-4a3f6ce1c9bf" />
+
+
+Take a screenshot of the interactive map in your browser and insert it here.
+
+Recommended caption:
+
+**Figure G2: Interactive map of sampled property listings, with marker colours representing price per square foot.**
+
+### Interpretation
+
+Use the map to inspect:
+
+* Geographic clusters of listings.
+* Local differences in price per square foot.
+* The distribution of prices within and between areas.
+* Whether high-priced listings are concentrated in particular regions.
+* Whether shared coordinates limit the precision of the displayed locations.
+
+The interactive map complements the static figure but does not replace the numerical locality analysis.
+
+If the background map does not load, the static scatterplot remains available for the report.
+
+---
+
+# 11. Part H — EDA Wrap-Up Analysis
+
+## 11.1 Purpose
+
+The final stage summarises the findings from the preceding sections.
+
+It identifies candidate features, possible modelling concerns, and areas that require further investigation.
+
+This summary provides a bridge between EDA and the next stage of the project.
+
+## 11.2 Target variable
+
+The original target is:
+
+`price_lakhs`
+
+The EDA also examines:
+
+`log_price = np.log1p(price_lakhs)`
+
+The transformation is investigated because it can reduce the influence of a strongly right-skewed price distribution.
+
+The final target representation should be selected based on actual distribution results and subsequent model evaluation.
+
+If the model predicts log-transformed prices, predictions must be transformed back to the original price scale before presenting estimated sale prices in lakhs.
+
+For the transformation used here:
+
+$$
+\widehat{\text{price\_lakhs}}
+=
+\exp(\widehat{\text{log\_price}})-1
+$$
+
+The original units should also be used when calculating or reporting metrics intended to represent errors in lakhs or rupees.
+
+## 11.3 Candidate important features
+
+The EDA identifies several plausible predictors for further investigation.
+
+| Feature            | Reason for investigation                   |
+| ------------------ | ------------------------------------------ |
+| `area_sqft`        | Represents the selected property area      |
+| `bedroom_num`      | Describes the number of bedrooms           |
+| `bathroom_num`     | Describes the number of bathrooms          |
+| `property_type`    | Distinguishes property categories          |
+| `locality_grouped` | Represents locality-level differences      |
+| `furnish`          | Represents furnishing category             |
+| `age`              | Represents property-age category           |
+| `facing`           | Represents facing-direction category       |
+| `owntype`          | Represents ownership-type category         |
+| `latitude`         | Represents north-south geographic position |
+| `longitude`        | Represents east-west geographic position   |
+
+These are candidate features, not a final feature-selection result.
+
+Their usefulness depends on their relationship with the target, data quality, redundancy, and performance during validation.
+
+## 11.4 Potential multicollinearity
+
+Area, bedroom count, and bathroom count may contain overlapping information.
+
+For example, larger properties may tend to have more bedrooms and bathrooms.
+
+The correlation matrix is used to screen for strongly related numerical predictors.
+
+However, correlated predictors should not automatically be removed.
+
+The appropriate decision depends on the model being used and whether the features provide useful predictive information.
+
+Tree-based models and linear models can behave differently when predictors are correlated.
+
+The issue should be reviewed during model development rather than resolved solely on the basis of a single correlation threshold.
+
+## 11.5 Categorical features and encoding
+
+The following features require categorical treatment or further verification of their meaning:
+
+* `property_type`
+* `furnish`
+* `age`
+* `facing`
+* `owntype`
+* `locality_grouped`
+
+The encoding strategy should reflect the meaning of each feature.
+
+For example, one-hot encoding can represent nominal categories without imposing an artificial numerical order.
+
+An ordinal encoding may be appropriate only when a meaningful order exists and the category definitions support it.
+
+The values in the encoded columns must be decoded or documented before an encoding strategy is chosen.
+
+Encoding should be performed within the modelling pipeline where appropriate so that preprocessing is fitted on the training data rather than the full dataset.
+
+## 11.6 Spatial importance
+
+The locality-level rankings and geographic maps examine two different aspects of location.
+
+The locality analysis compares typical prices across named locality groups.
+
+The map examines the geographic distribution of the listings and their prices.
+
+Together, these analyses help justify investigating location-related features in the next stage.
+
+Possible follow-up work includes examining distances to relevant landmarks or amenities, provided the required data is available and the calculations can be validated.
+
+The maps alone do not establish that location causes a particular price difference.
+
+## 11.7 Data-quality observations
+
+The EDA checks several potential data-quality issues:
+
+1. Missing values in property characteristics.
+2. Unusually small or large feature values.
+3. Categories with very few listings.
+4. Differences in the number of observations across property types.
+5. Localities containing relatively few listings.
+6. Repeated or approximate geographic coordinates.
+7. Encoded category values whose meanings require documentation.
+8. Price distributions containing extreme values.
+
+These issues should be documented based on the actual notebook output.
+
+A statistical outlier is not automatically an invalid record. A high price may reflect a genuine luxury property, and a repeated coordinate may represent multiple properties within the same building or locality.
+
+Potential problems should be investigated before any records are removed or modified.
+
+## 11.8 Final EDA observations
+
+**[INSERT OUTPUT H1 HERE]**
+
+Insert the printed output of Part H from the final cell in `03_eda.ipynb`.
+
+Recommended caption:
+
+**Table H1: Summary of candidate predictors, potential redundancy, categorical features, spatial observations, and data-quality checks.**
+
+After inserting the output, add a short paragraph summarising the actual findings.
+
+The paragraph should mention:
+
+* Whether the price distribution supports evaluating a logarithmic target.
+* Which features show promising relationships with price in the plots and correlation analysis.
+* Which predictors may be redundant.
+* Which features require categorical encoding.
+* Whether coordinate duplication raises concerns about location precision.
+* Any unexpected categories or data-quality issues that need follow-up.
+
+Do not state that a feature is the strongest predictor unless the analysis or later model evaluation supports that conclusion.
+
+---
+
+# 12. Summary of Generated EDA Outputs
+
+The following files are generated during the EDA stage.
+
+| Output                                 | File path                                        | Purpose                                                      |
+| -------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------ |
+| Price distribution plots               | `reports/figures/01_price_distribution.png`      | Compare original price, log price, and price per square foot |
+| Correlation heatmap                    | `reports/figures/02_correlation_heatmap.png`     | Examine numerical relationships                              |
+| Price versus area                      | `reports/figures/03a_price_vs_area.png`          | Investigate the relationship between area and price          |
+| Price versus bedrooms                  | `reports/figures/03b_price_vs_bedrooms.png`      | Compare prices across bedroom counts                         |
+| Price by property type                 | `reports/figures/03c_price_by_property_type.png` | Compare property-type price distributions                    |
+| Other categorical comparisons          | `reports/figures/03d_other_categoricals.png`     | Examine furnishing, age, and area-source categories          |
+| Locality median-price ranking          | `reports/figures/04a_locality_median_price.png`  | Compare locality-level median sale prices                    |
+| Locality price-per-square-foot ranking | `reports/figures/04b_locality_median_pps.png`    | Compare locality-level median price per square foot          |
+| Static geographic map                  | `reports/figures/05a_price_map_static.png`       | Visualise geographical price patterns                        |
+| Interactive map                        | `reports/price_map.html`                         | Explore sampled listings interactively                       |
+| EDA notebook                           | `notebooks/03_eda.ipynb`                         | Record the analysis and reproducible code                    |
+
+The tables and screenshots inserted into this README should be generated from the actual notebook outputs.
+
+---
+
+# 13. Methodological Considerations
+
+Several considerations are important when interpreting the EDA results.
+
+## 13.1 Association does not imply causation
+
+A relationship between property area and price does not prove that area alone causes the price difference.
+
+Other factors, such as locality, property type, and condition, may contribute to the observed relationship.
+
+## 13.2 Outliers require investigation
+
+Unusually high or low values should be investigated rather than removed automatically.
+
+An extreme price may represent a genuine property, while an unusual value may also indicate an error in the original listing.
+
+The decision should be based on the feature's meaning and the evidence available.
+
+## 13.3 Correlation is not a complete measure of feature importance
+
+Pearson correlation captures linear association between numerical variables.
+
+It does not capture every nonlinear relationship, and it does not directly measure a feature's predictive contribution to a trained model.
+
+Model-based evaluation will be needed to assess predictive usefulness.
+
+## 13.4 Locality summaries are influenced by property composition
+
+Different localities may contain different property types, sizes, and furnishing categories.
+
+Therefore, differences in median prices should not be interpreted as the isolated effect of locality.
+
+## 13.5 Geographic coordinates may be approximate
+
+Repeated coordinates can indicate approximate locality-level positions rather than exact property locations.
+
+This limits the conclusions that can be drawn from the map and should be considered when developing location-based features.
+
+## 13.6 Avoiding target leakage
+
+The `price_per_sqft` variable is derived directly from `price_lakhs`.
+
+It is used for descriptive analysis but should not be included as a predictor when the objective is to predict the same property's sale price.
+
+Similarly, any feature created using the target price must be reviewed before it is included in a machine learning model.
+
+---
+
+# 14. Conclusion
+
+Exploratory Data Analysis provides an initial understanding of the cleaned real-estate dataset and helps establish a foundation for machine learning.
+
+The analysis examines the distribution of sale prices, compares original and log-transformed prices, investigates correlations between numerical features, studies the relationship between price and property characteristics, compares locality-level price statistics, and visualises the geographical distribution of listings.
+
+The findings help identify plausible predictors, potential redundancy, categorical-encoding requirements, and data-quality concerns.
+
+The results also highlight the importance of location as an area for further investigation.
+
+However, EDA does not by itself determine the final feature set or guarantee predictive performance. Those decisions require validation using appropriately constructed machine learning pipelines.
+
+The next stage will use these observations to investigate additional location-related features, prepare the modelling inputs, train candidate models, and compare their predictive performance.
+
+---
+
+# 15. Reproducibility Checklist
+
+Before marking the EDA stage as complete, verify the following:
+
+* [ ] `notebooks/03_eda.ipynb` contains all EDA steps from A to H.
+* [ ] The cleaned dataset loads successfully.
+* [ ] The DataFrame shape and missing values have been checked.
+* [ ] Descriptive statistics have been generated.
+* [ ] Price distributions have been examined.
+* [ ] Original and log-transformed prices have been compared.
+* [ ] The correlation heatmap has been generated.
+* [ ] Potentially correlated predictors have been investigated.
+* [ ] Price versus area has been plotted.
+* [ ] Price versus bedroom count has been plotted.
+* [ ] Price distributions across property types have been compared.
+* [ ] Additional categorical comparisons have been examined.
+* [ ] Locality-level price rankings have been generated.
+* [ ] The static geographic map has been saved.
+* [ ] Coordinate duplication has been investigated.
+* [ ] The interactive map has been saved, if successfully generated.
+* [ ] Part H summarises the actual findings.
+* [ ] All figures referenced in this README exist in `reports/figures/`.
+* [ ] The actual outputs have been inserted at the marked locations.
+* [ ] The interpretation does not claim that correlation proves causation.
+* [ ] `price_per_sqft` is documented as an EDA-only, target-derived variable.
+* [ ] The README has been checked against the final notebook output.
+
+**End of Module 3: Exploratory Data Analysis.**
+
