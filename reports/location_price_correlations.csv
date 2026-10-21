@@ -1,0 +1,16 @@
+feature,rho_vs_price_per_sqft,p_value,rho_vs_log_price,n
+dist_bus_km,-0.301,1.41e-155,-0.344,7457
+dist_railway_km,-0.271,8.449999999999999e-126,-0.306,7457
+dist_mall_km,-0.233,9.01e-93,-0.287,7457
+dist_school_km,-0.221,5.77e-83,-0.265,7457
+dist_hospital_km,-0.215,1.67e-78,-0.284,7457
+dist_highway_km,0.022,0.0528,-0.013,7457
+dist_mainroad_km,0.023,0.0506,-0.012,7457
+n_hospital_1km,0.096,9.33e-17,0.179,7457
+n_mall_1km,0.123,1.38e-26,0.198,7457
+n_school_1km,0.185,3.71e-58,0.24,7457
+n_bus_1km,0.191,3.39e-62,0.252,7457
+n_mall_2km,0.21,4.49e-75,0.278,7457
+n_hospital_2km,0.219,2.3e-81,0.29,7457
+n_school_2km,0.266,5.2e-121,0.31,7457
+n_bus_2km,0.3,1.94e-155,0.347,7457
