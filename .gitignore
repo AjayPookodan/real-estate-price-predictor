@@ -24,3 +24,6 @@ data/processed/*
 
 # Trained machine learning models
 models/*.pkl
+
+# Large OpenStreetMap source data
+data/external/*.osm.pbf
