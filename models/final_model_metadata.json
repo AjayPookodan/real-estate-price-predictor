@@ -1,0 +1,65 @@
+{
+    "project": "Gurgaon Real Estate Price Prediction",
+    "model_name": "RandomForestRegressor",
+    "feature_set": "Core Model",
+    "model_file": "final_price_model.joblib",
+    "features": [
+        "bedroom_num",
+        "bathroom_num",
+        "balcony_num",
+        "floor_num",
+        "total_floor",
+        "total_landmark_count",
+        "area_sqft",
+        "property_type",
+        "owntype",
+        "furnish",
+        "facing",
+        "age",
+        "locality_grouped",
+        "latitude",
+        "longitude"
+    ],
+    "categorical_features": [
+        "property_type",
+        "owntype",
+        "furnish",
+        "facing",
+        "age",
+        "locality_grouped"
+    ],
+    "numerical_features": [
+        "bedroom_num",
+        "bathroom_num",
+        "balcony_num",
+        "floor_num",
+        "total_floor",
+        "total_landmark_count",
+        "area_sqft",
+        "latitude",
+        "longitude"
+    ],
+    "target": "log_price",
+    "target_transformation": "log1p(price_lakhs)",
+    "inverse_target_transformation": "expm1(predicted_log_price)",
+    "training_rows": 5965,
+    "test_rows": 1492,
+    "random_state": 42,
+    "best_hyperparameters": {
+        "n_estimators": 400,
+        "max_depth": null,
+        "min_samples_split": 2,
+        "min_samples_leaf": 1,
+        "max_features": 1.0
+    },
+    "test_metrics_log_scale": {
+        "r2": 0.9122882493091937,
+        "mae": 0.11839739772243402,
+        "rmse": 0.18271744892422054
+    },
+    "test_metrics_original_price_scale_lakhs": {
+        "r2": 0.9023454929139978,
+        "mae_lakhs": 43.337743063177925,
+        "rmse_lakhs": 100.14828141572147
+    }
+}
