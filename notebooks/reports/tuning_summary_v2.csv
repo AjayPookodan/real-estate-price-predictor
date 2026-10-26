@@ -1,0 +1,5 @@
+model,best_cv_rmse_log,best_params
+Gradient Boosting,0.17280739463278852,"{'model__subsample': 0.7, 'model__n_estimators': 400, 'model__min_samples_leaf': 10, 'model__max_depth': 5, 'model__learning_rate': 0.1}"
+Random Forest,0.18032062166670165,"{'model__n_estimators': 500, 'model__min_samples_leaf': 1, 'model__max_features': 0.3, 'model__max_depth': 30}"
+Ridge (extra),0.2358373589741825,{'model__alpha': 0.1}
+Decision Tree,0.237504754109243,"{'model__max_depth': 12, 'model__min_samples_leaf': 3}"

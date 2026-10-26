@@ -1,0 +1,47 @@
+{
+    "project": "Gurgaon Real Estate Price Prediction",
+    "selected_model": "Random Forest",
+    "model_file": "selected_final_model.joblib",
+    "target": "log_price",
+    "target_transformation": "log1p(price_lakhs)",
+    "prediction_inverse_transformation": "expm1(prediction)",
+    "numeric_features": [
+        "bedroom_num",
+        "bathroom_num",
+        "balcony_num",
+        "floor_num",
+        "total_floor",
+        "total_landmark_count",
+        "area_sqft",
+        "latitude",
+        "longitude"
+    ],
+    "categorical_features": [
+        "property_type",
+        "owntype",
+        "furnish",
+        "facing",
+        "age",
+        "locality_grouped"
+    ],
+    "total_features": 15,
+    "training_samples": 5965,
+    "test_samples": 1492,
+    "cross_validation_folds": 5,
+    "best_hyperparameters": {
+        "model__n_estimators": 400,
+        "model__min_samples_split": 5,
+        "model__min_samples_leaf": 1,
+        "model__max_features": 0.7,
+        "model__max_depth": null
+    },
+    "test_metrics": {
+        "R2 (log scale)": 0.9174837816743255,
+        "MAE (log scale)": 0.11686377005498183,
+        "RMSE (log scale)": 0.17722328871969703,
+        "R2 (price scale)": 0.9010440568982179,
+        "MAE (lakhs)": 43.37032385619639,
+        "RMSE (lakhs)": 100.81340792605769
+    },
+    "price_unit": "lakhs of INR"
+}

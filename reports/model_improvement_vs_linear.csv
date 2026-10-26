@@ -1,0 +1,5 @@
+model,cv_rmse_log,improvement_vs_linear_%
+Random Forest,0.1828,22.05
+Gradient Boosting,0.1862,20.6
+Linear Regression,0.2345,0.0
+Decision Tree,0.2374,-1.24

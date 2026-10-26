@@ -1,0 +1,33 @@
+{
+  "sklearn_version": "1.9.1",
+  "numeric_features": [
+    "bedroom_num",
+    "bathroom_num",
+    "balcony_num",
+    "floor_num",
+    "total_floor",
+    "total_landmark_count",
+    "area_sqft",
+    "latitude",
+    "longitude"
+  ],
+  "categorical_features": [
+    "property_type",
+    "owntype",
+    "furnish",
+    "facing",
+    "age",
+    "locality_grouped"
+  ],
+  "target": "price_lakhs",
+  "target_transform": "log1p / expm1",
+  "train_rows": 5965,
+  "models": [
+    "Linear Regression",
+    "Decision Tree",
+    "Random Forest",
+    "Gradient Boosting"
+  ],
+  "model_type": "TransformedTargetRegressor",
+  "prediction_unit": "lakhs"
+}

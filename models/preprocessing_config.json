@@ -1,0 +1,35 @@
+{
+    "numeric_features": [
+        "bedroom_num",
+        "bathroom_num",
+        "balcony_num",
+        "floor_num",
+        "total_floor",
+        "total_landmark_count",
+        "area_sqft",
+        "latitude",
+        "longitude"
+    ],
+    "categorical_features": [
+        "property_type",
+        "owntype",
+        "furnish",
+        "facing",
+        "age",
+        "locality_grouped"
+    ],
+    "numeric_imputation": "median",
+    "categorical_imputation": "constant",
+    "categorical_fill_value": "Unknown",
+    "categorical_encoding": "OneHotEncoder",
+    "handle_unknown": "infrequent_if_exist",
+    "min_frequency": 10,
+    "sparse_output": false,
+    "scaling_options": [
+        "scaled",
+        "unscaled"
+    ],
+    "scaling_method": "StandardScaler",
+    "remainder": "drop",
+    "fit_policy": "Fit preprocessing on training data only"
+}

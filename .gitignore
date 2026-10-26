@@ -27,3 +27,5 @@ models/*.pkl
 
 # Large OpenStreetMap source data
 data/external/*.osm.pbf
+
+models/*.joblib

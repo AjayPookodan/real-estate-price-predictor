@@ -1,0 +1,6 @@
+model,cv_r2,cv_r2_std,train_r2,cv_rmse_log,cv_mae_log,seconds
+Baseline (median),-0.027,0.01,-0.027,0.621,0.486,19.9
+Linear Regression,0.851,0.01,0.86,0.236,0.174,5.8
+Decision Tree,0.824,0.016,1.0,0.257,0.164,0.4
+Random Forest,0.906,0.01,0.987,0.188,0.125,5.1
+Gradient Boosting,0.877,0.014,0.894,0.214,0.159,4.1

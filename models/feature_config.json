@@ -1,0 +1,26 @@
+{
+    "numeric_features": [
+        "bedroom_num",
+        "bathroom_num",
+        "balcony_num",
+        "floor_num",
+        "total_floor",
+        "total_landmark_count",
+        "area_sqft",
+        "latitude",
+        "longitude"
+    ],
+    "categorical_features": [
+        "property_type",
+        "owntype",
+        "furnish",
+        "facing",
+        "age",
+        "locality_grouped"
+    ],
+    "target": "log_price",
+    "original_target": "price_lakhs",
+    "identifier": "prop_id",
+    "split_column": "split",
+    "description": "Core property features for Gurgaon real-estate price prediction. The target is log1p(price_lakhs)."
+}
