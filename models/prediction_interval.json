@@ -1,0 +1,8 @@
+{
+    "lower_log_adjustment": -0.2840537179782606,
+    "upper_log_adjustment": 0.2846122458989648,
+    "target_coverage": 0.9,
+    "actual_test_coverage": 0.8987935656836461,
+    "target_scale": "log_price",
+    "output_scale": "price_lakhs"
+}

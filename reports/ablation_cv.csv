@@ -1,0 +1,5 @@
+feature set,n_features,cv_r2,cv_r2_std,cv_rmse_log,cv_rmse_std
+A. Property only,11,0.8015,0.0183,0.2724,0.0073
+B. A + location (no amenities),15,0.9081,0.0099,0.1852,0.0065
+C. B + amenities (full model),30,0.9126,0.0091,0.1807,0.0061
+D. A + amenities (no locality/coords),26,0.9054,0.011,0.1879,0.0075

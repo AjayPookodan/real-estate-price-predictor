@@ -1,0 +1,43 @@
+{
+    "final_model": "Random Forest",
+    "sklearn_version": "1.9.1",
+    "prediction_output": "Price in lakhs",
+    "prediction_conversion": "np.expm1(log_price_prediction)",
+    "test_metrics": {
+        "Test R2 (log)": 0.9174837816743254,
+        "Test MAE (log)": 0.1168637700549818,
+        "Test RMSE (log)": 0.1772232887196971,
+        "Test R2 (price)": 0.9010440568982176,
+        "Test MAE (lakhs)": 43.37032385619642,
+        "Test RMSE (lakhs)": 100.81340792605778
+    },
+    "prediction_interval": {
+        "lower_log_adjustment": -0.2840537179782606,
+        "upper_log_adjustment": 0.2846122458989648,
+        "target_coverage": 0.9,
+        "actual_test_coverage": 0.8987935656836461,
+        "target_scale": "log_price",
+        "output_scale": "price_lakhs"
+    },
+    "train_ranges": {
+        "price_lakhs": [
+            100.0,
+            4500.0
+        ],
+        "area_sqft": [
+            802.0,
+            10000.0
+        ],
+        "bedroom_num": [
+            1.0,
+            8.0
+        ]
+    },
+    "n_train": 5965,
+    "n_test": 1492,
+    "known_limitations": [
+        "The model was trained on Gurgaon sale listings.",
+        "Predictions for properties above \u20b910 crore show substantial underestimation.",
+        "The prediction interval is empirical and not a guarantee."
+    ]
+}

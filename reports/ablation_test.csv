@@ -1,0 +1,5 @@
+feature set,MAE (lakhs),RMSE (lakhs),R²,Median APE %,Within ±20%
+A. Property only,78.117,156.535,0.761,16.553,58.914
+B. A + location (no amenities),49.559,103.674,0.895,10.078,79.558
+C. B + amenities (full model),47.682,103.462,0.896,9.2,80.697
+D. A + amenities (no locality/coords),48.367,102.901,0.897,9.241,80.429

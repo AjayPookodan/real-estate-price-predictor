@@ -1,0 +1,3 @@
+Metric,Model A,Model B,Mean difference (B - A),95% CI lower,95% CI upper,Interpretation
+MAE,Random Forest,Gradient Boosting,6.896598543065661,5.0214260898173855,8.642302684323566,Random Forest has lower MAE
+RMSE,Random Forest,Gradient Boosting,4.621728208243804,-0.2724118363140718,9.591536989356442,Difference not clearly distinguishable from zero
