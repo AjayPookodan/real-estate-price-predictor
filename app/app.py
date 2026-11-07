@@ -194,27 +194,66 @@ col5, col6 = st.columns(2)
 
 with col5:
 
+    owntype_options = {
+        1: "Freehold - 1",
+        2: "Leasehold - 2",
+        3: "Co-operative Society - 3",
+        4: "Power of Attorney - 4"
+    }
+
     owntype = st.selectbox(
-        "Ownership Type (Code)",
-        [1, 2, 3, 4]
+        "Ownership Type",
+        options=list(owntype_options.keys()),
+        format_func=lambda x: owntype_options[x]
     )
 
+    furnish_options = {
+        0: "Unfurnished - 0",
+        1: "Semi-Furnished (Type 1) - 1",
+        2: "Semi-Furnished (Type 2) - 2",
+        4: "Fully Furnished - 4"
+    }
+
     furnish = st.selectbox(
-        "Furnishing Status (Code)",
-        [0, 1, 2, 4]
+        "Furnishing Status",
+        options=list(furnish_options.keys()),
+        format_func=lambda x: furnish_options[x]
     )
 
 
 with col6:
 
+    facing_options = {
+        0: "North - 0",
+        1: "North-East - 1",
+        2: "East - 2",
+        3: "South-East - 3",
+        4: "South - 4",
+        5: "South-West - 5",
+        6: "West - 6",
+        7: "North-West - 7",
+        8: "Don't Know / North-Facing Variant - 8"
+    }
+
     facing = st.selectbox(
-        "Property Facing (Code)",
-        [0, 1, 2, 3, 4, 5, 6, 7, 8]
+        "Property Facing",
+        options=list(facing_options.keys()),
+        format_func=lambda x: facing_options[x]
     )
 
+    age_options = {
+        0: "Under Construction / New - 0",
+        1: "0 to 1 Year Old - 1",
+        2: "1 to 5 Years Old - 2",
+        3: "5 to 10 Years Old - 3",
+        5: "10+ Years Old (Resale - Type A) - 5",
+        6: "10+ Years Old (Resale - Type B) - 6"
+    }
+
     age = st.selectbox(
-        "Property Age (Code)",
-        [0, 1, 2, 3, 5, 6]
+        "Property Age",
+        options=list(age_options.keys()),
+        format_func=lambda x: age_options[x]
     )
 
 

@@ -1,4 +1,4 @@
-S# Real Estate Price Prediction
+# Real Estate Price Prediction
 
 ## Project Description
 
@@ -1536,9 +1536,9 @@ It helps verify that:
 * Geographic coordinates are available.
 * The dataset was loaded with the expected structure.
 
-============================================================
+
 PART A — DATASET VERIFICATION
-============================================================
+
 
 Dataset shape:
 (7457, 20)
